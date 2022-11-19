@@ -5,18 +5,22 @@ import WorkoutForm from "../components/WorkoutForm";
 import { setWorkouts } from "../redux/actions";
 
 const Home = () => {
-  const workouts = useSelector((state) => state.workouts);
-  console.log(workouts);
+  const { workouts } = useSelector((state) => state.workoutReducer);
+  const { user } = useSelector((state) => state.userReducer);
   const dispatch = useDispatch();
 
   useEffect(() => {
     const fetchWorkouts = async () => {
-      const response = await fetch("/api/workouts");
+      const response = await fetch("/api/workouts", {
+        headers: { Authorization: `Bearer ${user.token}` },
+      });
       const json = await response.json();
       dispatch(setWorkouts(json));
     };
-    fetchWorkouts();
-  }, []);
+    if (user) {
+      fetchWorkouts();
+    }
+  }, [dispatch]);
 
   return (
     <div className="home">

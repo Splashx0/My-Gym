@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { createWorkout } from "../redux/actions";
 const WorkoutForm = () => {
-  const dispatch = useDispatch;
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.userReducer);
   const [title, setTitle] = useState("");
   const [load, setLoad] = useState("");
   const [reps, setReps] = useState("");
@@ -11,6 +12,10 @@ const WorkoutForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!user) {
+      setError("You must be Logged in ");
+      return;
+    }
 
     const workout = { title, load, reps };
 
@@ -19,6 +24,7 @@ const WorkoutForm = () => {
       body: JSON.stringify(workout),
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${user.token}`,
       },
     });
     const json = await response.json();
@@ -39,7 +45,7 @@ const WorkoutForm = () => {
   };
 
   return (
-    <form className="create" onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit}>
       <h3>Add a New Workout</h3>
 
       <label>Excersize Title:</label>
